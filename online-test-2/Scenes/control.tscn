@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://dt88x8ynwkq76"]
 
+[ext_resource type="Script" uid="uid://bcvegmotq3prb" path="res://Scripts/MultiplayerController.gd" id="1_sjmnu"]
+
 [node name="Control" type="Control" unique_id=1226847817]
 layout_mode = 3
 anchors_preset = 15
@@ -7,6 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_sjmnu")
 
 [node name="RoomCode" type="LineEdit" parent="." unique_id=1747149072]
 layout_mode = 0
@@ -23,3 +26,46 @@ offset_top = 172.0
 offset_right = 673.5
 offset_bottom = 203.0
 placeholder_text = "Enter username"
+
+[node name="Label" type="Label" parent="." unique_id=174060855]
+layout_mode = 0
+offset_left = 302.0
+offset_top = 401.0
+offset_right = 863.0
+offset_bottom = 511.0
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="HostButton" type="Button" parent="." unique_id=1671199399]
+layout_mode = 0
+offset_left = 528.0
+offset_top = 227.0
+offset_right = 615.0
+offset_bottom = 258.0
+text = "Host"
+
+[node name="JoinButton" type="Button" parent="." unique_id=549165552]
+layout_mode = 0
+offset_left = 530.0
+offset_top = 291.0
+offset_right = 617.0
+offset_bottom = 322.0
+text = "Join Game"
+
+[node name="CancelButton" type="Button" parent="." unique_id=9217626]
+layout_mode = 0
+offset_left = 535.0
+offset_top = 344.0
+offset_right = 622.0
+offset_bottom = 375.0
+text = "Cancel"
+
+[node name="StartGameButton" type="Button" parent="." unique_id=2145939688]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[connection signal="button_down" from="HostButton" to="." method="_on_host_button_button_down"]
+[connection signal="button_down" from="JoinButton" to="." method="_on_join_button_button_down"]
+[connection signal="button_down" from="CancelButton" to="." method="_on_cancel_button_button_down"]
+[connection signal="button_down" from="StartGameButton" to="." method="_on_start_game_button_button_down"]
