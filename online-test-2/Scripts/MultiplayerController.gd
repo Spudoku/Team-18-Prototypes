@@ -11,6 +11,7 @@ extends Control
 @onready var roomCodeText = $RoomCode
 @onready var usernameText = $Username
 
+@onready var notificationLabel = $NotificationLabel
 #endregion
 
 # Idle: neither joining nor hosting
@@ -21,8 +22,10 @@ extends Control
 # joining: from idle using join button. can go back to idle by pressing cancel
 #
 
-@export var Address = "127.0.0.1"
-@export var port = 8910
+@export var Address = "127.0.0.1" # local server (?)
+@export var port = 8910 # TODO: check port?
+
+const MAX_PLAYERS = 2
 
 var peer
 
@@ -37,6 +40,8 @@ var state = LobbyState.IDLE
 func _ready():
 	cancelButton.disabled = true
 	startGameButton.disabled = true
+	hostButton.disabled = false
+	joinButton.disabled = false
 	state = LobbyState.IDLE
 
 	# server connectivity
@@ -55,48 +60,67 @@ func _on_cancel_button_button_down() -> void:
 	state = LobbyState.IDLE
 	cancelButton.disabled = true
 	startGameButton.disabled = true
+	hostButton.disabled = false
+	joinButton.disabled = false
 
 	# TODO: destroy peer and/or disconnect from server
-	if peer:
-		peer.queue_free()
+	# if peer:
+	# 	peer = null
+
+	close_server()
 
 	pass # Replace with function body.
 
 
 func _on_join_button_button_down() -> void:
-	# check room code text
-	if roomCodeText.text == "":
-		print("Please enter a room code!")
-		label.text = "Please enter a room code!"
-		return
-	# TODO: check if room code is valid
-	
 	if usernameText.text == "":
 		print("Please enter a username!")
 		label.text = "Please enter a username!"
 		return
+	# check room code text
+	# if roomCodeText.text == "":
+	# 	print("Please enter a room code!")
+	# 	label.text = "Please enter a room code!"
+	# 	return
+	# TODO: check if room code is valid
+	hostButton.disabled = true
+	joinButton.disabled = true
+	
 
 	cancelButton.disabled = false
 	state = LobbyState.JOINING
 	startGameButton.disabled = true
+
+	#TODO: connect to server
+	peer = ENetMultiplayerPeer.new()
+	peer.create_client(Address, port)
+	peer.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
+	multiplayer.set_multiplayer_peer(peer)
+	print("Joining server...")
+	#TODO: send player data to server (username, id) and notify host of new player joining
+	# in NotificationLabel, 
 
 	
 	pass # Replace with function body.
 
 
 func _on_host_button_button_down() -> void:
-	label.text = ""
-	cancelButton.disabled = false
-	state = LobbyState.HOSTING
-	startGameButton.disabled = false
-
 	if usernameText.text == "":
 		print("Please enter a username!")
 		label.text = "Please enter a username!"
 		return
 
-	# TODO: generate room code, put it in roomCodeText, create server
+	label.text = ""
+	cancelButton.disabled = false
+	state = LobbyState.HOSTING
+	startGameButton.disabled = false
 
+	hostButton.disabled = true
+	joinButton.disabled = true
+
+	
+	# TODO: create server
+	hostGame()
 
 	pass # Replace with function body.
 
@@ -113,6 +137,9 @@ func _on_start_game_button_button_down() -> void:
 		return
 
 	label.text = ""
+
+	hostButton.disabled = true
+	joinButton.disabled = true
 	# start the game!
 	startGame.rpc()
 	pass # Replace with function body.
@@ -122,7 +149,8 @@ func _on_start_game_button_button_down() -> void:
 
 func hostGame():
 	peer = ENetMultiplayerPeer.new()
-	var error = peer.create_server(port, 2)
+	var error = peer.create_server(port, MAX_PLAYERS)
+	
 
 	if error != OK:
 		print("Cannot host!", error)
@@ -158,6 +186,7 @@ func SendPlayerData(playerName, id):
 
 func player_connected(id):
 	print("Player connected ", id)
+	notificationLabel.text = "Player connected: " + str(id)
 	pass
 
 func player_disconnected(id):
@@ -173,7 +202,7 @@ func connected_to_server():
 	SendPlayerData.rpc_id(1, $Username.text, multiplayer.get_unique_id())
 
 	# TODO: validate roomcode.text
-	print("Connected to server with room code", roomCodeText.text)
+	# print("Connected to server with room code", roomCodeText.text)
 	label.text = "Connected to server with room code " + roomCodeText.text
 	pass
 
@@ -181,4 +210,25 @@ func connection_failed():
 	print("Connection failed!")
 	label.text = "Connection failed! Please try again..."
 	pass
+
+# NOTE: this code generated with AI
+func close_server():
+	print("Closing server...")
+	var multiplayer_peer = multiplayer.get_multiplayer_peer()
+
+	if multiplayer_peer and not (multiplayer_peer is OfflineMultiplayerPeer):
+		print("Disconnecting all peers...")
+		for peer_id in multiplayer_peer.get_peers():
+			multiplayer_peer.disconnect_peer(peer_id)
+			print("Disconnected peer ", peer_id)
+
+		multiplayer_peer.close()
+
+		multiplayer.multiplayer_peer = null
+
+		print("Server closed.")
+	else:
+		print("No multiplayer peer to close.")
+
+
 #endregion
