@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://burbi8vk67r2t"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ee5rj"]
+radius = 3.0
+height = 160.0
+
+[node name="Line2" type="Area2D" unique_id=1121676820]
+
+[node name="Line2D2" type="Line2D" parent="." unique_id=302291581]
+position = Vector2(37, 5)
+points = PackedVector2Array(574, 306, 731, 306)
+default_color = Color(0.28627452, 0.28627452, 0.28627452, 1)
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="." unique_id=731220355]
+position = Vector2(688, 311)
+rotation = 1.5707964
+scale = Vector2(2, 1)
+shape = SubResource("CapsuleShape2D_ee5rj")
