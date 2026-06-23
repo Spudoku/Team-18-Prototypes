@@ -1,5 +1,10 @@
 extends Control
 
+#region export
+@export var gameScene: PackedScene
+
+#endregion
+
 #region onReady
 @onready var label = $Label
 
@@ -166,6 +171,16 @@ func hostGame():
 
 @rpc("any_peer", "call_local")
 func startGame():
+	if gameScene:
+		var scene = gameScene.instantiate()
+		
+		get_tree().root.add_child(scene)
+
+		self.process_mode = Node.PROCESS_MODE_DISABLED
+		self.visible = false
+
+		# the scenes '_ready' will handle spawning players and game logic
+
 	pass
 
 
@@ -203,7 +218,7 @@ func connected_to_server():
 
 	# TODO: validate roomcode.text
 	# print("Connected to server with room code", roomCodeText.text)
-	label.text = "Connected to server with room code " + roomCodeText.text
+	# label.text = "Connected to server with room code " + roomCodeText.text
 	pass
 
 func connection_failed():
