@@ -1,0 +1,55 @@
+PROTOTYPE IMPROVED CHANGES
+
+Has a way to score points and player cannot get multiple points from one line completion.
+Deletes lines made by player after drawn
+Grey lines will turn aqua after completion
+Currrently any line drawn by the player can score a point as long as the start and end points match the start and end points of the target line. 
+This means that the middle of the line can be wildy off from the middle of the target line.
+However this may still work do to the limited player movements
+
+GOALS
+
+Implement 2 players with one player only moving up and down and the other side to side
+Player 2 should be colored orange
+Have camera move with mouse so that the curser is always in the middle of the screen
+Set amount of time to complete
+Add mistake or lives counter
+
+
+PROTOTYPE IMPROVED CONFIGURATION
+
+Scene Main:
+
+Node2D: Main
+	Area2D: Line1
+	Area2D: Line2
+	Node2D: Player
+	Node2D: Cursor
+	Label: Score
+	Label: Mistakes
+
+main.gd is attached to Main
+
+Scene Player:
+
+Node2D: Player
+	Line2D
+player.gd is attached to Player
+
+Scene Cursor:
+
+Node2D: Cursor
+
+cursor.gd is attached to Cursor
+
+Scene Line 1:
+
+Area2D: Line1
+	Line2D
+	CollisionShape2D
+
+Scene Line 2:
+
+Area2D: Line2
+	Line2D
+	CollisionShape2D

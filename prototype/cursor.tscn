@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cyxh1d58falur"]
+
+[ext_resource type="Script" uid="uid://vyl4cx8k15w7" path="res://curser.gd" id="1_fsq4c"]
+
+[node name="Cursor" type="Node2D" unique_id=888760015]
+script = ExtResource("1_fsq4c")
