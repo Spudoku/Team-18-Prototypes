@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://jnlyc0wcmwl8"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_v1eqy"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kj3c1"]
+radius = 26.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_y5u66"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="LaserIndicator" type="Area2D" unique_id=1756983726]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1432394306]
+position = Vector2(0, -1.013279e-06)
+scale = Vector2(52.500004, 52.000004)
+texture = SubResource("PlaceholderTexture2D_v1eqy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1627618624]
+shape = SubResource("CircleShape2D_kj3c1")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1541474333]
+replication_config = SubResource("SceneReplicationConfig_y5u66")
