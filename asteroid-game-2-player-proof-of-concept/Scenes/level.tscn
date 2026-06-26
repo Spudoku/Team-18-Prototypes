@@ -3,10 +3,14 @@
 [ext_resource type="Script" uid="uid://casaem66nr124" path="res://Scripts/SceneManager.gd" id="1_tumq0"]
 [ext_resource type="PackedScene" uid="uid://deeqb6r51wxqi" path="res://Scenes/asteroid.tscn" id="2_k5f4k"]
 [ext_resource type="AudioStream" uid="uid://b57jxwrfbwr30" path="res://SFX/minecraft-eerie-noise-2.mp3" id="3_6phgx"]
+[ext_resource type="PackedScene" uid="uid://jnlyc0wcmwl8" path="res://Scenes/laser_indicator.tscn" id="3_81xng"]
+[ext_resource type="PackedScene" uid="uid://bt7ddj2vece7b" path="res://Scenes/player_input.tscn" id="4_wqkje"]
 
 [node name="Level" type="Node2D" unique_id=2054485502]
 script = ExtResource("1_tumq0")
 AsteroidScene = ExtResource("2_k5f4k")
+LaserIndicatorScene = ExtResource("3_81xng")
+Player = ExtResource("4_wqkje")
 spawn_noise = ExtResource("3_6phgx")
 
 [node name="Timer" type="Timer" parent="." unique_id=561630155]
@@ -14,7 +18,7 @@ wait_time = 6.0
 autostart = true
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=390351284]
-_spawnable_scenes = PackedStringArray("uid://deeqb6r51wxqi", "uid://jnlyc0wcmwl8")
+_spawnable_scenes = PackedStringArray("uid://deeqb6r51wxqi", "uid://jnlyc0wcmwl8", "uid://bt7ddj2vece7b")
 spawn_path = NodePath("..")
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=1022441302]

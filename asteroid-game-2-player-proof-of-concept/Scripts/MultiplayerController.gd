@@ -123,7 +123,7 @@ func _on_host_button_button_down() -> void:
 	hostButton.disabled = true
 	joinButton.disabled = true
 
-	
+	SendPlayerData(usernameText.text, multiplayer.get_unique_id())
 	# TODO: create server
 	hostGame()
 
@@ -191,6 +191,7 @@ func SendPlayerData(playerName, id):
 			"name": playerName,
 			"id": id
 		}
+		GameManager.player_ids.push_front(id)
 	print("Player ", playerName, " has joined the game!")
 	# server
 	if multiplayer.is_server():
