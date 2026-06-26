@@ -20,13 +20,14 @@ extends Node2D
 
 var laserIndicator: Node2D
 
+var last_sent_horiz: float = 0.0
+var last_sent_vert: float = 0.0
+
 func _ready():
 	if multiplayer.is_server():
 		clientLabel.text = "I am the host/server"
 		spawn_laserPointer()
-		for test in GameManager.Players:
-			print("player id: " + str(test))
-			pass
+		
 	else:
 		$Timer.stop()
 		print("I'm not the server, stopped timer")
@@ -93,9 +94,51 @@ func _on_timer_timeout() -> void:
 	pass # Replace with function body.
 
 func _physics_process(delta: float) -> void:
-	if multiplayer.is_server():
+	if multiplayer.is_server() and is_instance_valid(laserIndicator):
+		# Server securely processes movement from compiled inputs
 		var thing_vel = GameManager.movement.normalized() * laserSpeed * delta
 		laserIndicator.global_position += thing_vel
+
+
+func _process(delta: float) -> void:
+	var my_id = multiplayer.get_unique_id()
+	
+	# --- Player 1: Horizontal Input Polling ---
+	if my_id == GameManager.player1:
+		var horiz = Input.get_axis("ui_left", "ui_right")
+		if horiz != last_sent_horiz:
+			last_sent_horiz = horiz
+			update_horiz_movement.rpc_id(1, horiz) # Send directly to server
+			
+	# --- Player 2: Vertical Input Polling ---
+	elif my_id == GameManager.player2:
+		var vert = Input.get_axis("ui_up", "ui_down")
+		if vert != last_sent_vert:
+			last_sent_vert = vert
+			update_vert_movement.rpc_id(1, vert) # Send directly to server
+
+@rpc("any_peer", "call_local", "unreliable")
+func update_horiz_movement(value: float):
+	if multiplayer.is_server():
+		var sender_id = multiplayer.get_remote_sender_id()
+
+		# handle "sender is host" case
+		if sender_id == 0:
+			sender_id = 1
+
+		if sender_id == GameManager.player1:
+			GameManager.movement.x = value
+
+@rpc("any_peer", "call_local", "unreliable")
+func update_vert_movement(value: float):
+	if multiplayer.is_server():
+		var sender_id = multiplayer.get_remote_sender_id()
+
+		# handle "sender is host" case
+		if sender_id == 0:
+			sender_id = 1
+		if sender_id == GameManager.player2:
+			GameManager.movement.y = value
 	
 
 func assign_controls() -> void:
@@ -113,17 +156,19 @@ func assign_controls() -> void:
 		print("Just right! exactly 2 players!")
 		# TODO: assign controls
 		var value = randf()
+		var p1: int
+		var p2: int
 
 		if value > 0.5:
-			GameManager.player1 = GameManager.player_ids[0]
-			GameManager.player2 = GameManager.player_ids[1]
+			p1 = GameManager.player_ids[0]
+			p2 = GameManager.player_ids[1]
 			pass
 		else:
-			GameManager.player2 = GameManager.player_ids[0]
-			GameManager.player1 = GameManager.player_ids[1]
+			p2 = GameManager.player_ids[0]
+			p1 = GameManager.player_ids[1]
 			pass
 		
 		print("Player 1: " + str(GameManager.player1) + "; Player 2: " + str(GameManager.player2))
-		
+		GameManager.sync_controls.rpc(p1, p2)
 
 	pass
