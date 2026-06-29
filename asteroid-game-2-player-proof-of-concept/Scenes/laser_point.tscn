@@ -1,9 +1,22 @@
 [gd_scene format=3 uid="uid://buh8fxcykhnc"]
 
+[ext_resource type="Texture2D" uid="uid://bqr6m7ksoi76j" path="res://Graphics/target_indicator.png" id="1_lapat"]
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_dm4oi"]
-radius = 53.037724
+radius = 66.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_lapat"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="LaserPoint" type="Area2D" unique_id=221223653]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=749496085]
 shape = SubResource("CircleShape2D_dm4oi")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=723583690]
+texture = ExtResource("1_lapat")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=991048829]
+replication_config = SubResource("SceneReplicationConfig_lapat")
