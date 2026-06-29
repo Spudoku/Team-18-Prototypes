@@ -23,7 +23,10 @@ var laserIndicator: Node2D
 var last_sent_horiz: float = 0.0
 var last_sent_vert: float = 0.0
 
+var updated_roles = false
+
 func _ready():
+	updated_roles = false
 	if multiplayer.is_server():
 		clientLabel.text = "I am the host/server"
 		spawn_laserPointer()
@@ -46,6 +49,8 @@ func _ready():
 
 
 	assign_controls()
+
+	
 	pass
 
 
@@ -117,6 +122,16 @@ func _process(delta: float) -> void:
 			last_sent_vert = vert
 			update_vert_movement.rpc_id(1, vert) # Send directly to server
 
+	if not updated_roles:
+		if my_id == GameManager.player1:
+			clientLabel.text = clientLabel.text + "\n You are player 1! You handle horizontal controls!"
+		elif my_id == GameManager.player2:
+			clientLabel.text = clientLabel.text + "\n You are player 2! You handle vertical controls!"
+		else:
+			clientLabel.text = clientLabel.text + "\n You have not been assigned controls!"
+		
+		updated_roles = true
+
 @rpc("any_peer", "call_local", "unreliable")
 func update_horiz_movement(value: float):
 	if multiplayer.is_server():
@@ -170,5 +185,6 @@ func assign_controls() -> void:
 		
 		print("Player 1: " + str(GameManager.player1) + "; Player 2: " + str(GameManager.player2))
 		GameManager.sync_controls.rpc(p1, p2)
+
 
 	pass
