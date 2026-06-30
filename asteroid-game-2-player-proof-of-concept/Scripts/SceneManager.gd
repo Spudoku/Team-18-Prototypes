@@ -18,10 +18,13 @@ extends Node2D
 # @onready var laserPointer = $LaserIndicator
 #endregion
 
+
 var laserIndicator: Node2D
 
 var last_sent_horiz: float = 0.0
 var last_sent_vert: float = 0.0
+
+var center: Vector2
 
 var updated_roles = false
 
@@ -50,16 +53,21 @@ func _ready():
 
 	assign_controls()
 
-	
+	AsteroidHandler.missed_asteroid.connect(penalize_players) # connect to "missed asteroid" event
 	pass
 
 
+func asteroid_timer() -> void:
+	pass
+
+# generates THE asteroid 
+# key difference is that a single asteroid object will be used
 @rpc("any_peer", "call_local")
 func spawn_asteroid():
 	if AsteroidScene and multiplayer.is_server():
 		var asteroid = AsteroidScene.instantiate()
-		var random_x = randf_range(0, get_viewport().size.x)
-		var random_y = randf_range(0, get_viewport().size.y)
+		var random_x = get_viewport().size.x / 2
+		var random_y = get_viewport().size.y / 2
 		asteroid.global_position = Vector2(random_x, random_y)
 		asteroid.rotation = randf_range(0, 2 * PI)
 		var id = ResourceUID.create_id()
@@ -73,7 +81,7 @@ func spawn_asteroid():
 		audio_player.stream = spawn_noise
 		audio_player.play()
 		
-		remove_after_delay(asteroid, 5) # Remove the asteroid after 2-6 seconds
+		# remove_after_delay(asteroid, 5) # Remove the asteroid after 2-6 seconds
 
 
 @rpc("any_peer", "call_local")
@@ -87,6 +95,8 @@ func spawn_laserPointer():
 
 		add_child(laserIndicator)
 
+func penalize_players():
+	pass
 	
 func remove_after_delay(node: Node, delay: float) -> void:
 	await get_tree().create_timer(delay).timeout
@@ -123,14 +133,15 @@ func _process(delta: float) -> void:
 			update_vert_movement.rpc_id(1, vert) # Send directly to server
 
 	if not updated_roles:
-		if my_id == GameManager.player1:
-			clientLabel.text = clientLabel.text + "\n You are player 1! You handle horizontal controls!"
-		elif my_id == GameManager.player2:
-			clientLabel.text = clientLabel.text + "\n You are player 2! You handle vertical controls!"
-		else:
-			clientLabel.text = clientLabel.text + "\n You have not been assigned controls!"
-		
-		updated_roles = true
+		if GameManager.player1 != 0 and GameManager.player2 != 0: # if I don't do this, then there is a race condition where player1/player2 aren't initialized
+			if my_id == GameManager.player1:
+				clientLabel.text = clientLabel.text + "\n You are player 1! You handle horizontal controls!"
+			elif my_id == GameManager.player2:
+				clientLabel.text = clientLabel.text + "\n You are player 2! You handle vertical controls!"
+			else:
+				clientLabel.text = clientLabel.text + "\n You have not been assigned controls!"
+			
+			updated_roles = true
 
 @rpc("any_peer", "call_local", "unreliable")
 func update_horiz_movement(value: float):

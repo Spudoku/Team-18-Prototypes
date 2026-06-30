@@ -12,11 +12,11 @@ LaserIndicatorScene = ExtResource("3_wqkje")
 Player = ExtResource("4_wqkje")
 
 [node name="Timer" type="Timer" parent="." unique_id=561630155]
-wait_time = 6.0
+one_shot = true
 autostart = true
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=390351284]
-_spawnable_scenes = PackedStringArray("uid://deeqb6r51wxqi", "uid://jnlyc0wcmwl8", "uid://bt7ddj2vece7b")
+_spawnable_scenes = PackedStringArray("uid://deeqb6r51wxqi", "uid://buh8fxcykhnc", "uid://bt7ddj2vece7b")
 spawn_path = NodePath("..")
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=1022441302]

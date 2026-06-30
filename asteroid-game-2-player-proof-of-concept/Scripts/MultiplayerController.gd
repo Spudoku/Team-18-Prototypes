@@ -217,9 +217,7 @@ func connected_to_server():
 	# note: since this passes 1, does that mean its server authority?
 	SendPlayerData.rpc_id(1, $Username.text, multiplayer.get_unique_id())
 
-	# TODO: validate roomcode.text
-	# print("Connected to server with room code", roomCodeText.text)
-	# label.text = "Connected to server with room code " + roomCodeText.text
+
 	pass
 
 func connection_failed():
