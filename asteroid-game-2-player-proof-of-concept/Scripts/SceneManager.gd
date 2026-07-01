@@ -47,6 +47,12 @@ func _ready():
 		GameManager.missed_asteroid.connect(func(): penalize_players.rpc()) # connect to "missed asteroid" event
 		GameManager.destroyed_asteroid.connect(func(): reward_players.rpc()) # connect to "destroyed asteroid" event
 		
+
+		assign_controls()
+		game_loop()
+		
+		# score initialization
+		set_score(0.0)
 	else:
 		$Timer.stop()
 		print("I'm not the server, stopped timer")
@@ -64,14 +70,8 @@ func _ready():
 		print("Spawned player named " + player.name)
 
 
-	assign_controls()
-
-	
-	# score initialization
-	set_score(0.0)
-
 	# new_asteroid_event()
-	game_loop()
+	
 	pass
 
 #region main_logic
@@ -79,6 +79,7 @@ func game_loop() -> void:
 	if not multiplayer.is_server():
 		return
 	
+	print("client id: ", multiplayer.get_unique_id(), "; starting game loop!")
 	while score < 1000 and score > -300:
 		new_asteroid_event()
 		await get_tree().create_timer(3).timeout
@@ -248,8 +249,12 @@ func spawn_asteroid():
 
 @rpc("any_peer", "call_local")
 func new_asteroid_event():
-	GameManager.new_asteroid()
 	notificationLabel.text = "A new asteroid is here! Destroy it in less than 10 seconds or you will lose subscriber!"
+	print("client id: ", multiplayer.get_unique_id(), "; starting a new asteroid event!!")
+	if not multiplayer.is_server():
+		return
+	GameManager.new_asteroid()
+	
 	pass
 
 @rpc("any_peer", "call_local")

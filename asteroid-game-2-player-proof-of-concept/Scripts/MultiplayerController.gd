@@ -57,6 +57,10 @@ func _ready():
 	
 	if "--server" in OS.get_cmdline_args():
 		hostGame()
+
+
+	# Listen for when nodes are added to the root window tree
+	
 	pass
 
 
@@ -171,14 +175,22 @@ func hostGame():
 
 @rpc("any_peer", "call_local")
 func startGame():
+	# if not multiplayer.is_server():
+	# 	return
 	if gameScene:
 		var scene = gameScene.instantiate()
 		
 		get_tree().root.add_child(scene)
 
+
+		if not multiplayer.is_server():
+			scene.process_mode = Node.PROCESS_MODE_DISABLED
+
+
 		self.process_mode = Node.PROCESS_MODE_DISABLED
 		self.visible = false
 
+		
 		# the scenes '_ready' will handle spawning players and game logic
 
 	pass

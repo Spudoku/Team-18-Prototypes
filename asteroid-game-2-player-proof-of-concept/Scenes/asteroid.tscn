@@ -1,7 +1,85 @@
 [gd_scene format=3 uid="uid://deeqb6r51wxqi"]
 
 [ext_resource type="Script" uid="uid://b42j53wn0j4bx" path="res://Scripts/asteroid.gd" id="1_a2bka"]
-[ext_resource type="Texture2D" uid="uid://cbbfxekfqk0tp" path="res://Graphics/Asteroids/asteroid_blue_1.png" id="2_a2bka"]
+[ext_resource type="Texture2D" uid="uid://d4nl3361kqkev" path="res://Graphics/Asteroids/AnimsBlue/blue1_debris_sheet.png" id="2_a2bka"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rvlwq"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(0, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bi0dy"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(1176, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rfhhd"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(2352, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f2ils"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(3528, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xliy4"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(4704, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fuwye"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(5880, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b8e0k"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(7056, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u63df"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(8232, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3tyeq"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(9408, 0, 1176, 912)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_so5nw"]
+atlas = ExtResource("2_a2bka")
+region = Rect2(10584, 0, 1176, 912)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_c0vxc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rvlwq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bi0dy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rfhhd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f2ils")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xliy4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fuwye")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b8e0k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u63df")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3tyeq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_so5nw")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_0tomg"]
 properties/0/path = NodePath(".:position")
@@ -31,10 +109,11 @@ polygon = PackedVector2Array(-7, -10, 15, 5, 6, 8, -11, 0)
 position = Vector2(0, 1)
 polygon = PackedVector2Array(-7, -10, 15, 5, 6, 8, -11, 0)
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1255167474]
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1924617007]
 position = Vector2(1, -1)
 scale = Vector2(0.1640625, 0.1640625)
-texture = ExtResource("2_a2bka")
+sprite_frames = SubResource("SpriteFrames_c0vxc")
+frame_progress = 0.3359705
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=323071637]
 replication_config = SubResource("SceneReplicationConfig_0tomg")

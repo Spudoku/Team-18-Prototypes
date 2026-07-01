@@ -8,6 +8,8 @@ var player2: int # this player controls vertical movement
 
 var movement: Vector2
 
+var asteroid_script: Script
+
 @rpc("any_peer", "call_local", "reliable")
 func sync_controls(p1: int, p2: int) -> void:
 	player1 = p1
@@ -26,6 +28,8 @@ signal destroyed_asteroid
 
 func set_asteroid(node: Node2D) -> void:
 	asteroid = node
+	asteroid_script = asteroid.get_script()
+	print("Asteroid set: %s", asteroid_script)
 
 func get_asteroid() -> Node2D:
 	return asteroid
