@@ -5,9 +5,14 @@ extends Node2D
 @export var AsteroidScene: PackedScene
 @export var LaserIndicatorScene: PackedScene
 @export var Player: PackedScene
-@export var spawn_noise: AudioStream
+
 
 @export var laserSpeed = 500
+
+
+@export var spawn_noise: AudioStream
+@export var fail_noise: AudioStream
+@export var success_noise: AudioStream
 #endregion export
 
 
@@ -15,6 +20,8 @@ extends Node2D
 @onready var audio_player = $AudioStreamPlayer2D
 @onready var clientLabel = $ClientLabel
 
+@onready var notificationLabel = $AsteroidNotifLabel
+@onready var scoreLabel = $ScoreLabel
 # @onready var laserPointer = $LaserIndicator
 #endregion
 
@@ -28,11 +35,17 @@ var center: Vector2
 
 var updated_roles = false
 
+var score = 0.0
+
+
 func _ready():
 	updated_roles = false
 	if multiplayer.is_server():
 		clientLabel.text = "I am the host/server"
 		spawn_laserPointer()
+
+		GameManager.missed_asteroid.connect(func(): penalize_players.rpc()) # connect to "missed asteroid" event
+		GameManager.destroyed_asteroid.connect(func(): reward_players.rpc()) # connect to "destroyed asteroid" event
 		
 	else:
 		$Timer.stop()
@@ -53,36 +66,34 @@ func _ready():
 
 	assign_controls()
 
-	AsteroidHandler.missed_asteroid.connect(penalize_players) # connect to "missed asteroid" event
+	
+	# score initialization
+	set_score(0.0)
+
+	# new_asteroid_event()
+	game_loop()
 	pass
 
+#region main_logic
+func game_loop() -> void:
+	if not multiplayer.is_server():
+		return
+	
+	while score < 1000 and score > -300:
+		new_asteroid_event()
+		await get_tree().create_timer(3).timeout
 
-func asteroid_timer() -> void:
-	pass
+		var random = randf()
 
-# generates THE asteroid 
-# key difference is that a single asteroid object will be used
-@rpc("any_peer", "call_local")
-func spawn_asteroid():
-	if AsteroidScene and multiplayer.is_server():
-		var asteroid = AsteroidScene.instantiate()
-		var random_x = get_viewport().size.x / 2
-		var random_y = get_viewport().size.y / 2
-		asteroid.global_position = Vector2(random_x, random_y)
-		asteroid.rotation = randf_range(0, 2 * PI)
-		var id = ResourceUID.create_id()
-		asteroid.name = "Asteroid_" + str(id) # don't forget to use unique names!
-		# asteroid.set_id(id)
+		# TODO: replace with actual logic!
+		if random > 0.5:
+			GameManager.asteroid_destroyed()
+		else:
+			GameManager.asteroid_timeout()
+		await get_tree().create_timer(3).timeout
 
-		add_child(asteroid)
-
-		# reset noise and play it
-		audio_player.stop()
-		audio_player.stream = spawn_noise
-		audio_player.play()
-		
-		# remove_after_delay(asteroid, 5) # Remove the asteroid after 2-6 seconds
-
+	game_over()
+	
 
 @rpc("any_peer", "call_local")
 func spawn_laserPointer():
@@ -95,18 +106,6 @@ func spawn_laserPointer():
 
 		add_child(laserIndicator)
 
-func penalize_players():
-	pass
-	
-func remove_after_delay(node: Node, delay: float) -> void:
-	await get_tree().create_timer(delay).timeout
-	if is_instance_valid(node):
-		node.queue_free()
-
-
-func _on_timer_timeout() -> void:
-	spawn_asteroid()
-	pass # Replace with function body.
 
 func _physics_process(delta: float) -> void:
 	if multiplayer.is_server() and is_instance_valid(laserIndicator):
@@ -117,6 +116,7 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	var my_id = multiplayer.get_unique_id()
+
 	
 	# --- Player 1: Horizontal Input Polling ---
 	if my_id == GameManager.player1:
@@ -143,6 +143,20 @@ func _process(delta: float) -> void:
 			
 			updated_roles = true
 
+
+func game_over():
+	if score >= 1000:
+		notificationLabel.text = "You win! You have gained a lot of subscriber!"
+	elif score <= -300:
+		notificationLabel.text = "You lose! You have lost many subscriber!"
+	
+	# disable controls for all players
+	GameManager.player1 = 0
+	GameManager.player2 = 0
+
+#endregion
+
+#region multiplayer controls
 @rpc("any_peer", "call_local", "unreliable")
 func update_horiz_movement(value: float):
 	if multiplayer.is_server():
@@ -199,3 +213,95 @@ func assign_controls() -> void:
 
 
 	pass
+
+	
+#endregion
+
+#region asteroid_logic
+
+# the loop?
+func asteroid_timer() -> void:
+	pass
+
+# generates THE asteroid object
+# key difference is that a single asteroid object will be used
+@rpc("any_peer", "call_local")
+func spawn_asteroid():
+	if AsteroidScene and multiplayer.is_server():
+		var asteroid = AsteroidScene.instantiate()
+		var random_x = get_viewport().size.x / 2
+		var random_y = get_viewport().size.y / 2
+		asteroid.global_position = Vector2(random_x, random_y)
+		asteroid.rotation = randf_range(0, 2 * PI)
+		var id = ResourceUID.create_id()
+		asteroid.name = "Asteroid_" + str(id) # don't forget to use unique names!
+		# asteroid.set_id(id)
+
+		add_child(asteroid)
+
+		# reset noise and play it
+		audio_player.stop()
+		audio_player.stream = spawn_noise
+		audio_player.play()
+		
+		# remove_after_delay(asteroid, 5) # Remove the asteroid after 2-6 seconds
+
+@rpc("any_peer", "call_local")
+func new_asteroid_event():
+	GameManager.new_asteroid()
+	notificationLabel.text = "A new asteroid is here! Destroy it in less than 10 seconds or you will lose subscriber!"
+	pass
+
+@rpc("any_peer", "call_local")
+func reward_players():
+	notificationLabel.text = "You destroyed the asteroid! You will gain subscriber!"
+	if multiplayer.is_server():
+		score += 100.0
+		sync_score.rpc(score)
+
+	
+	audio_player.stop()
+	audio_player.stream = success_noise
+	audio_player.play()
+	pass
+
+@rpc("any_peer", "call_local")
+func penalize_players():
+	notificationLabel.text = "You missed the asteroid! You will lose subscriber!"
+	if multiplayer.is_server():
+		score -= 100.0
+		sync_score.rpc(score)
+
+	audio_player.stop()
+	audio_player.stream = fail_noise
+	audio_player.play()
+	pass
+
+# outdated
+func remove_after_delay(node: Node, delay: float) -> void:
+	await get_tree().create_timer(delay).timeout
+	if is_instance_valid(node):
+		node.queue_free()
+
+# outdated/not in use
+func _on_timer_timeout() -> void:
+	spawn_asteroid()
+	pass # Replace with function body.
+
+#endregion
+
+#region score_logic
+func update_score(amount: float):
+	score += amount
+	scoreLabel.text = "Score: " + str(score)
+
+func set_score(amount: float):
+	score = amount
+	scoreLabel.text = "Score: " + str(score)
+
+@rpc("authority", "call_local", "reliable")
+func sync_score(new_score: float):
+	score = new_score
+	scoreLabel.text = "Score: " + str(score)
+
+#endregion

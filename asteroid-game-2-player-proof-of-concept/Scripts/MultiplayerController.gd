@@ -232,6 +232,7 @@ func close_server():
 
 	if multiplayer_peer and not (multiplayer_peer is OfflineMultiplayerPeer):
 		print("Disconnecting all peers...")
+		# TODO: fix this! multiplayer_peer.get_peers() is not a valid method. 
 		for peer_id in multiplayer_peer.get_peers():
 			multiplayer_peer.disconnect_peer(peer_id)
 			print("Disconnected peer ", peer_id)

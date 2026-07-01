@@ -4,12 +4,16 @@
 [ext_resource type="PackedScene" uid="uid://deeqb6r51wxqi" path="res://Scenes/asteroid.tscn" id="2_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://buh8fxcykhnc" path="res://Scenes/laser_point.tscn" id="3_wqkje"]
 [ext_resource type="PackedScene" uid="uid://bt7ddj2vece7b" path="res://Scenes/player_input.tscn" id="4_wqkje"]
+[ext_resource type="AudioStream" uid="uid://b5fnqkirumdc7" path="res://SFX/fart-with-reverb.mp3" id="5_0f350"]
+[ext_resource type="AudioStream" uid="uid://cahjdg16s1pe5" path="res://SFX/yippeeeeeeeeeeeeee.mp3" id="6_8c0lf"]
 
 [node name="Level" type="Node2D" unique_id=2054485502]
 script = ExtResource("1_tumq0")
 AsteroidScene = ExtResource("2_k5f4k")
 LaserIndicatorScene = ExtResource("3_wqkje")
 Player = ExtResource("4_wqkje")
+fail_noise = ExtResource("5_0f350")
+success_noise = ExtResource("6_8c0lf")
 
 [node name="Timer" type="Timer" parent="." unique_id=561630155]
 one_shot = true
@@ -25,5 +29,23 @@ spawn_path = NodePath("..")
 offset_right = 464.0
 offset_bottom = 76.0
 vertical_alignment = 1
+
+[node name="AsteroidNotifLabel" type="Label" parent="." unique_id=2093416034]
+offset_left = 683.0
+offset_top = 4.0
+offset_right = 1147.0
+offset_bottom = 80.0
+horizontal_alignment = 2
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=1047704615]
+offset_left = 683.0
+offset_top = 94.0
+offset_right = 1147.0
+offset_bottom = 170.0
+horizontal_alignment = 2
+vertical_alignment = 1
+autowrap_mode = 2
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
